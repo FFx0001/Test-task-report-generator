@@ -2,7 +2,14 @@
 
 namespace App\Exceptions;
 
+use App\Http\Services\RestService;
+use Cassandra\Exception\ValidationException;
+use HttpException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Env;
+use Illuminate\Support\Traits\EnumeratesValues;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -13,7 +20,10 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<Throwable>>
      */
     protected $dontReport = [
-        //
+        AuthorizationException::class,
+        HttpException::class,
+        ModelNotFoundException::class,
+        ValidationException::class,
     ];
 
     /**
@@ -37,5 +47,27 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $e)
+    {
+        if(($request->ajax() && !$request->pjax()) || $request->wantsJson()) {
+            if($e instanceof ValidationException) {
+                if(Env("APP_DEBUG")==true){
+                    return (new RestService())->setErrors(\Illuminate\Support\Arr::collapse($e->errors()))->setSuccess(false)->setStatus(422)->build();
+                }else {
+                    return (new RestService())->setErrors("Validation error")->setSuccess(false)->setStatus(422)->build();
+                }
+            }
+        }
+        if(!empty($e->getMessage())){
+            if(Env("APP_DEBUG")==true) {
+                return (new RestService())->setSuccess(false)->setErrors($e->getMessage())->setStatus(500)->build();
+            }else{
+                return (new RestService())->setSuccess(false)->setErrors("Internal server error")->setStatus(500)->build();
+            }
+        }else{
+            return (new RestService())->setSuccess(false)->setErrors('Page not found')->setStatus(404)->build();
+        }
     }
 }

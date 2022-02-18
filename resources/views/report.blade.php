@@ -1,6 +1,6 @@
 <!DOCTYPE HTML>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>"Отчет о продажах автомобилей"</title>
 </head>
 <body>

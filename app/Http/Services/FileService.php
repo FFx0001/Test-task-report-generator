@@ -6,6 +6,7 @@ namespace App\Http\Services;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use function PHPUnit\Framework\isEmpty;
 
 /**
  * Class FileService
@@ -22,7 +23,7 @@ class FileService
      * @return $this
      * select parent folder for creating file Public/Uploads...
      */
-    public function setFileFolder($file_folder="all"){$this->file_folder=$file_folder;return $this;}
+    public function setFileFolder($file_folder="Files"){$this->file_folder=$file_folder;return $this;}
 
     /**
      * @param $file_content
@@ -31,26 +32,57 @@ class FileService
     public function setFileContent($file_content){$this->file_content=$file_content;return $this;}
 
     /**
-     * creating file with content on the local folder
+     * creating file with content on the public folder
+     * @return array ["status"(bool),"system_file_name"(string),"public_file_path"(string),"info"(string)]
      */
     public function createFile(){
-        $temp_file_name = $this->generateFileName();
-        Storage::disk('public')->put($this->getSubFolder()."//".$this->file_folder."//".$temp_file_name, $this->file_content);
-        return $temp_file_name;
+        $result = ["status"=>false,"system_file_name"=>"","file_folder"=>"","public_file_path"=>"","info"=>""];
+        if($this->file_folder == null) {
+            $result["info"]="file folder not initialized";
+            return $result;
+        }
+        if($this->file_content == null) {
+            $result["info"]="file content is empty";
+            return $result;
+        }
+        $system_file_name = $this->generateFileName();
+        Storage::disk('public')->put("Uploads"."//".$this->file_folder."//".$system_file_name, $this->file_content);
+        if(strlen($this->getFileRaw($system_file_name))>0){
+            $result["status"]=true;
+            $result["system_file_name"]=$system_file_name;
+            $result["public_file_path"]=$this->getPublicFilePath($system_file_name);
+            return $result;
+        }else{
+            $result["info"]="error on saving file";
+            return $result;
+        }
     }
 
-    function getPublicFilePath($file_name){
-        return  "public//" . $this->getSubFolder()."//".$this->file_folder."//".$file_name;
+    /**
+     * Get parent public file path for downloading
+     * @param $file_name
+     * @return string
+     */
+    function getPublicFilePath($system_file_name){
+        return  "public/"."Uploads"."/".$this->file_folder."//".$system_file_name;
     }
 
+    /**
+     * Get raw file content from system_file_name
+     * @param $file_name
+     * @return string
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
     function getFileRaw($file_name)
     {
-       return Storage::disk('public')->get($this->getSubFolder()."//".$this->file_folder . "//" . $file_name);
+       return Storage::disk('public')->get("Uploads"."//".$this->file_folder . "//" . $file_name);
     }
 
-    private function getSubFolder(){
-        return ENV("FILE_STORAGE_FOLDER","Uploads");
-    }
+
+    /**
+     * Generate unique name for file
+     * @return string
+     */
     private function generateFileName(){
         return hash('sha256', Str::uuid()->toString());
     }

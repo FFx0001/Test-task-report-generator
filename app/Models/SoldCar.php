@@ -17,6 +17,7 @@ class SoldCar extends Model
      * @var array
      */
     protected $fillable = [
+        'brand',
         'model',
         'vin',
         'engine_capacity',
@@ -26,4 +27,12 @@ class SoldCar extends Model
         'date_of_sale',
         'dealer',
     ];
+
+    /**
+     * Select all record for report
+     * @return SoldCar[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllRecordsForReport(){
+      return (new SoldCar)->all();
+    }
 }

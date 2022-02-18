@@ -15,13 +15,14 @@ class CreateSoldCarsTable extends Migration
     {
         Schema::create('sold_cars', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('brand',128)->nullable(false);
             $table->string('model',64)->nullable(false);
             $table->string('vin',17)->nullable(false);
-            $table->unsignedFloat('engine_capacity')->nullable(false);
-            $table->unsignedFloat('engine_power')->nullable(false);
+            $table->unsignedDouble('engine_capacity')->nullable(false);
+            $table->unsignedDouble('engine_power')->nullable(false);
             $table->string('type_of_kpp',8)->nullable(false);
             $table->unsignedInteger('year_of_release')->nullable(false);
-            $table->timestamp('date_of_sale')->nullable(false);
+            $table->dateTime('date_of_sale')->nullable(false);
             $table->string('dealer',128)->nullable(false);
             $table->timestamps();
         });

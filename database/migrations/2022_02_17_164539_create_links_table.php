@@ -15,8 +15,7 @@ class CreateLinksTable extends Migration
     {
         Schema::create('links', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('file_id');
-            $table->unsignedInteger('count_downloads')->default(0);
+            $table->uuid('file_id')->nullable(false);
             $table->timestamps();
         });
     }

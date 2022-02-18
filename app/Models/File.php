@@ -30,7 +30,6 @@ class File extends Model
     public function getFieldsByReqId($file_req_id){
         $result = ["status"=>false,"system_name"=>"","sub_folder"=>"","extension"=>"","display_name"=>"","info"=>""];
         if(isset($file_req_id)){
-           // $file =  $this->File->find($file_req_id)->first();
             $file = File::where("id","=",$file_req_id)->first();
             if($file){
                 $result["system_name"] = $file->system_name;

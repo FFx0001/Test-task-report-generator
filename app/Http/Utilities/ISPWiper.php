@@ -53,6 +53,12 @@ class ISPWiper
         }
         return $result;
     }
+
+    /**
+     * Collection methods for removing trash in string
+     * @param $input
+     * @return string
+     */
     public function parseEngTextOnly($input){ return $this->removeSpecialChars($input, ['.',',',' '],false,false,true);  }
     public function parseRusTextOnly($input){ return $this->removeSpecialChars($input, ['.',',',' '],false,true,false);  }
     public function parseEngOnly($input){ return $this->removeSpecialChars($input, [''],false,false,true);  }

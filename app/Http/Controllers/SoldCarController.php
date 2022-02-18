@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Services\FileService;
 use App\Http\Services\ReportService;
+use App\Http\Utilities\ISPWiper;
 use Illuminate\Http\Request;
 use App\Models\SoldCar;
 use App\Http\Controllers\FileController;
@@ -12,7 +13,8 @@ use App\Http\Controllers\LinkController;
 
 class SoldCarController extends Controller
 {
-    /**
+    /*
+     * generating Report on selected convert mode in raw binary string
      * @param $format
      * @param $template
      * @return mixed or binary string (raw_data)
@@ -38,20 +40,21 @@ class SoldCarController extends Controller
 
     public function generateReportAndSendToPost($format)
     {
-        //
+        return $this->response()->setErrors("not implemented")->setStatus(501)->build();
     }
 
     /**
-     * generate report in raw type
+     * generate report in raw type based64
      * @param $format
      * @return {'raw_data'(binary string),'extension'(string),'real_file_name'(string) }
      */
     public function generateReportRawForFront($format)
     {
+        $format = (new ISPWiper())->parseEngOnly($format);
         $sub_folder_name = "reports";
         $file_display_name = "Отчет о проданных автомобилях";
         $report_raw_data = $this->reportGenerator($format,"report");
-        return $this->response()->setContent(["raw_data"=>$report_raw_data,"extension"=>$format["extension"],"real_file_name"=>$file_display_name])->build();
+        return $this->response()->setContent(["raw_data"=>base64_encode($report_raw_data),"extension"=>$format,"real_file_name"=>$file_display_name])->build();
     }
 
     /**
@@ -60,6 +63,7 @@ class SoldCarController extends Controller
      */
     public function generateReportAndShareLink($format)
     {
+        $format = (new ISPWiper())->parseEngOnly($format);
         $sub_folder_name = "reports";
         $file_display_name = "Отчет о проданных автомобилях";
         $report_raw_data = $this->reportGenerator($format,"report");
